@@ -23,9 +23,6 @@
             <el-form-item label="到公司距离">
                 <el-input v-model="form.company"></el-input>
             </el-form-item>
-            <el-form-item label="评分">
-                <el-input v-model="form.score"></el-input>
-            </el-form-item>
             <el-form-item>
                 <el-button type="primary" @click="onSubmit">记录信息</el-button>
                 <el-button>取消</el-button>
@@ -47,14 +44,20 @@
                             label="评分"
                             width="180">
                     </el-table-column>
+                    <el-table-column
+                            prop="score"
+                            label="操作"
+                            width="180">
+                        <el-button @click="handleClick(scope.row)" type="text" size="small">删除</el-button>
+                    </el-table-column>
                 </el-table>
             </span>
             <el-pagination
                     @current-change="handleCurrentChange"
                     :current-page.sync="currentPage"
-                    :page-size="total"
+                    :page-size="size"
                     layout="total, prev, pager, next"
-                    :total="1000">
+                    :total="total">
             </el-pagination>
         </div>
     </div>
@@ -70,8 +73,7 @@
                 form: {
                     housingEstate: '',
                     subway: '',
-                    company: '',
-                    score: ''
+                    company: ''
                 },
                 tableData: {
                     housingEstate: '',
@@ -79,10 +81,13 @@
                 },
                 currentPage: 1,
                 total: 100,
-                size: 10
+                size: 8
             }
         },
         methods: {
+            handleClick(row) {
+                console.log(row)
+            },
             handleCurrentChange(val) {
                 this.currentPage = val;
                 console.log(`当前页: ${val}`);
@@ -91,7 +96,6 @@
             selectHousingInfo() {
                 let data={
                     current:this.currentPage,
-                    total:this.total,
                     size:this.size
                 };
                 axios({
@@ -105,15 +109,20 @@
             },
             onSubmit() {
                 let data={
-                    housingEstate:this.housingEstate,
-                    subway:this.subway,
-                    company:this.company,
-                    score:this.score
+                    housingEstate:this.form.housingEstate,
+                    subway:this.form.subway,
+                    company:this.form.company
                 };
                 axios({
                     method: 'post',
                     url: 'http://127.0.0.1:8080/setHouseInfo',
                     data: data
+                }).then(() =>{
+                    this.housingEstate = '';
+                    this.subway = '';
+                    this.company = '';
+                    alert("添加成功");
+                    this.selectHousingInfo();
                 })
             }
         }
